@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+option go_package = "/proto";
+
+import "google/api/annotations.proto";
+
+package order;
+
+message Order {
+  int64 Id = 1;
+  string Date = 2;
+  int64 TableNumber = 3;
+  int64 WaiterId = 4;
+  int64 Price = 5;
+  bool Payment = 6;
+}
+
+message ReadAllRequest {}
+
+message ReadAllResponse {
+  repeated Order order = 1;
+}
+
+message ReadRequest {
+  int64 Id = 1;
+}
+
+message ReadResponse {
+  Order order = 1;
+}
+
+message CreateRequest {
+  Order order = 1;
+}
+
+message CreateResponse {
+  int64 Id = 1;
+}
+
+message UpdateRequest {
+  int64 Id = 1;
+  string Payment = 2;
+}
+
+message UpdateResponse {
+}
+
+message DeleteRequest {
+  int64 Id = 1;
+}
+
+message DeleteResponse {}
+
+service OrderService {
+
+  rpc ReadAll(ReadAllRequest) returns (ReadAllResponse) {
+    option (google.api.http) = {
+      get:"/api/orders"
+    };
+  }
+
+  rpc Read(ReadRequest) returns (ReadResponse) {
+    option (google.api.http) = {
+      get:"/api/orders/{id}"
+    };
+  }
+
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post:"/api/orders"
+      body: "*"
+    };
+  }
+
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      put:"/api/orders"
+      body: "*"
+    };
+  }
+
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete:"/api/orders/{id}"
+    };
+  }
+}
