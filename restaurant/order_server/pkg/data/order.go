@@ -16,17 +16,8 @@ type Order struct {
 	Payment     bool
 }
 
-type FullOrder struct {
-	Id          int
-	Date        time.Time
-	TableNumber int
-	FullName    string
-	Price       int
-	Payment     bool
-}
-
-func (o FullOrder) String() string {
-	return fmt.Sprintf("(%d %s %d %s %d %t)", o.Id, o.Date, o.TableNumber, o.FullName, o.Price, o.Payment)
+func (o Order) String() string {
+	return fmt.Sprintf("(%d %s %d %d %d %t)", o.Id, o.Date, o.TableNumber, o.WaiterId, o.Price, o.Payment)
 }
 
 type OrderData struct {
@@ -42,7 +33,6 @@ func (o OrderData) ReadAll() ([]Order, error) {
 
 	err := o.db.Table(ordersTable).
 		Select(allOrders).
-		Joins(allOrdersJoin).
 		Find(&orders)
 	if err.Error != nil {
 		return nil, err.Error
@@ -55,7 +45,6 @@ func (o OrderData) Read(id int64) (Order, error) {
 	err := o.db.Table(ordersTable).
 		Where(readWhere, id).
 		Select(readOrder).
-		Joins(readOrderJoin).
 		Find(&order)
 
 	if err.Error != nil {

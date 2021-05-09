@@ -2,13 +2,14 @@ package api
 
 import (
 	"context"
-	"gorm.io/gorm"
-	"log"
 	"strconv"
 	"time"
 
-	"golang-training-restaurant-grpc/restaurant/order_server/pkg/data"
-	pb "golang-training-restaurant-grpc/restaurant/proto/proto"
+	"github.com/miladouski/golang-training-restaurant-grpc/restaurant/order_server/pkg/data"
+	pb "github.com/miladouski/golang-training-restaurant-grpc/restaurant/proto/proto"
+
+	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type orderServer struct {
@@ -34,6 +35,13 @@ func (o orderServer) ReadAll(ctx context.Context, request *pb.ReadAllRequest) (*
 			Price:       orders[i].Price,
 			Payment:     orders[i].Payment,
 		}
+		log.WithFields(log.Fields{"Id": orders[i].Id,
+			"date":    orders[i].Date,
+			"table":   orders[i].TableNumber,
+			"waiter":  orders[i].WaiterId,
+			"price":   orders[i].Price,
+			"payment": orders[i].Payment}).
+			Info("Read all orders")
 		pbOrders = append(pbOrders, order)
 	}
 	return &pb.ReadAllResponse{Order: pbOrders}, nil
@@ -44,14 +52,22 @@ func (o orderServer) Read(ctx context.Context, request *pb.ReadRequest) (*pb.Rea
 	if err != nil {
 		log.Println("got an error when tried to read orders")
 	}
-	return &pb.ReadResponse{Order: &pb.Order{
+	pbOrder := pb.Order{
 		Id:          order.Id,
 		Date:        order.Date.String(),
 		TableNumber: order.TableNumber,
 		WaiterId:    order.WaiterId,
 		Price:       order.Price,
 		Payment:     order.Payment,
-	}}, nil
+	}
+	log.WithFields(log.Fields{"Id": order.Id,
+		"date":    order.Date,
+		"table":   order.TableNumber,
+		"waiter":  order.WaiterId,
+		"price":   order.Price,
+		"payment": order.Payment}).
+		Info("Read order")
+	return &pb.ReadResponse{Order: &pbOrder}, nil
 }
 
 func (o orderServer) Create(ctx context.Context, request *pb.CreateRequest) (*pb.CreateResponse, error) {
@@ -71,6 +87,13 @@ func (o orderServer) Create(ctx context.Context, request *pb.CreateRequest) (*pb
 	if err != nil {
 		log.Fatal("got an error when tried to create order")
 	}
+	log.WithFields(log.Fields{"Id": order.Id,
+		"date":    order.Date,
+		"table":   order.TableNumber,
+		"waiter":  order.WaiterId,
+		"price":   order.Price,
+		"payment": order.Payment}).
+		Info("Create order")
 	return &pb.CreateResponse{}, nil
 }
 
@@ -80,6 +103,8 @@ func (o orderServer) Update(ctx context.Context, request *pb.UpdateRequest) (*pb
 	if err != nil {
 		log.Fatal("got an error when tried to update order")
 	}
+	log.WithFields(log.Fields{"Id": request.Id, "payment": payment}).
+		Info("Update order")
 	return &pb.UpdateResponse{}, nil
 }
 
@@ -88,5 +113,7 @@ func (o orderServer) Delete(ctx context.Context, request *pb.DeleteRequest) (*pb
 	if err != nil {
 		log.Fatal("got an error when tried to delete order")
 	}
+	log.WithFields(log.Fields{"Id": request.Id}).
+		Info("Update order")
 	return &pb.DeleteResponse{}, nil
 }

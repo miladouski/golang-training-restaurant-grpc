@@ -33,15 +33,6 @@ func NewGorm(db *sql.DB) *gorm.DB {
 	return gormDb
 }
 
-var testFullOrder = &FullOrder{
-	Id:          6,
-	Date:        time.Now(),
-	TableNumber: 1,
-	FullName:    "Mark",
-	Price:       124,
-	Payment:     true,
-}
-
 var testOrder = Order{
 	Id:          1,
 	Date:        time.Now(),
@@ -57,13 +48,13 @@ func TestReadAll(t *testing.T) {
 	defer db.Close()
 	gormDb := NewGorm(db)
 	data := NewOrderData(gormDb)
-	rows := sqlmock.NewRows([]string{"id", "Date", "TableNumber", "FullName", "Price", "Payment"}).
-		AddRow(testFullOrder.Id, testFullOrder.Date, testFullOrder.TableNumber, testFullOrder.FullName, testFullOrder.Price, testFullOrder.Payment)
+	rows := sqlmock.NewRows([]string{"id", "Date", "TableNumber", "WaiterId", "Price", "Payment"}).
+		AddRow(testOrder.Id, testOrder.Date, testOrder.TableNumber, testOrder.WaiterId, testOrder.Price, testOrder.Payment)
 	mock.ExpectQuery(readAllOrdersQuery).WillReturnRows(rows)
 	orders, err := data.ReadAll()
 	assert.NoError(err)
 	assert.NotEmpty(orders)
-	assert.Equal(orders[0], *testFullOrder)
+	assert.Equal(orders[0], testOrder)
 	assert.Len(orders, 1)
 }
 
@@ -85,12 +76,12 @@ func TestRead(t *testing.T) {
 	defer db.Close()
 	gormDb := NewGorm(db)
 	data := NewOrderData(gormDb)
-	rows := sqlmock.NewRows([]string{"id", "Date", "TableNumber", "FullName", "Price", "Payment"}).
-		AddRow(testFullOrder.Id, testFullOrder.Date, testFullOrder.TableNumber, testFullOrder.FullName, testFullOrder.Price, testFullOrder.Payment)
-	mock.ExpectQuery(readOrdersQuery).WithArgs(testFullOrder.Id).WillReturnRows(rows)
+	rows := sqlmock.NewRows([]string{"id", "Date", "TableNumber", "WaiterId", "Price", "Payment"}).
+		AddRow(testOrder.Id, testOrder.Date, testOrder.TableNumber, testOrder.WaiterId, testOrder.Price, testOrder.Payment)
+	mock.ExpectQuery(readOrdersQuery).WithArgs(testOrder.Id).WillReturnRows(rows)
 	orders, err := data.Read(testOrder.Id)
 	assert.NoError(err)
-	assert.Equal(orders, *testFullOrder)
+	assert.Equal(orders, testOrder)
 }
 
 func TestReadErr(t *testing.T) {
@@ -99,7 +90,7 @@ func TestReadErr(t *testing.T) {
 	defer db.Close()
 	gormDb := NewGorm(db)
 	data := NewOrderData(gormDb)
-	mock.ExpectQuery(readOrdersQuery).WithArgs(testFullOrder.Id).
+	mock.ExpectQuery(readOrdersQuery).WithArgs(testOrder.Id).
 		WillReturnError(errors.New("something went wrong..."))
 	users, err := data.Read(testOrder.Id)
 	assert.Error(err)
