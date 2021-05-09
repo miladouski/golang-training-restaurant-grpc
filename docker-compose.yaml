@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+  db-restaurant:
+    image: miladouski/db-restaurant:latest
+    networks:
+      - restaurant-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=restaurant
+    ports:
+      - 5432:5432
+    container_name: db-restaurant
+  order-server:
+    image: miladouski/order-server:latest
+    ports:
+      - 8282:8282
+    container_name: order-server
+    environment:
+      - DB_USERS_HOST=db-restaurant
+      - DB_USERS_PORT=5432
+      - DB_USERS_USER=postgres
+      - DB_USERS_DBNAME=restaurant
+      - DB_USERS_PASSWORD=1111
+      - DB_USERS_SSL=disable
+    depends_on:
+      - db-restaurant
+    networks:
+      - restaurant-network
+  order-client:
+    image: miladouski/order-client:latest
+    ports:
+      - 8383:8383
+    container_name: order-client
+    depends_on:
+      - order-server
+    environment:
+      - SERVER=order-server:8282
+      - PORT=0.0.0.0:8383
+    networks:
+      - restaurant-network
+
+networks:
+  restaurant-network:
+    name: restaurant-network
