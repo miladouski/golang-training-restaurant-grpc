@@ -17,6 +17,6 @@ Use this address to run the application: `localhost:8383/{path}`
 | `api/orders`                             |    `GET`      |   get all orders                            |                               |
 
 ### Generate go code from protobuf
-To generate go code from brotobuf use command: `protoc -I . user.proto --grpc-gateway_out . --go_out=plugins=grpc:.`
+To generate go code from brotobuf use command: `protoc -I . order.proto --grpc-gateway_out . --go_out=plugins=grpc:.`
 ### Run application via docker-compose
 To run application via docker-compose use command: `docker-compose -f docker-compose.yaml up`
